@@ -29,7 +29,9 @@ class ContactPage extends Component {
       <div className={s.root}>
         <div className={s.container}>
           <h1>{title}</h1>
-          <p>...</p>
+          <a href="https://twitter.com/soccerinfohelp">Twitter</a>
+          <p>soccerinfohelp@gmail.com</p>
+          <a href="https://www.facebook.com/soccerlcapp/">Facbook</a>
         </div>
       </div>
     );
