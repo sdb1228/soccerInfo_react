@@ -11,33 +11,103 @@ import React, { Component, PropTypes } from 'react';
 import s from './FindTeamPage.scss';
 import withStyles from '../../decorators/withStyles';
 import fetch from '../../core/fetch';
+var axios = require('axios');
 var Autocomplete = require('react-autocomplete');
+var styles = {
+  item: {
+    padding: '2px 6px',
+    cursor: 'default'
+  },
+
+  highlightedItem: {
+    color: 'white',
+    background: 'hsl(200, 50%, 50%)',
+    padding: '2px 6px',
+    cursor: 'default'
+  },
+  divStyle: {
+      "background-color": 'black'
+  }, 
+  menu: {
+    borderRadius: '3px',
+    boxShadow: '0 2px 12px rgba(0, 0, 0, 0.1)',
+    background: 'rgba(255, 255, 255, 0.9)',
+    padding: '2px 0',
+    fontSize: '90%',
+    position: 'fixed',
+    overflow: 'auto',
+    maxHeight: '50%',
+  }
+}
 
 @withStyles(s)
 class FindTeamPage extends Component {
 
+findTeam (team, value) {
+  return (
+    team.name.toLowerCase().indexOf(value.toLowerCase()) !== -1
+  )
+}
 
+sortTeams (a, b, value) {
+  return (
+    a.name.toLowerCase().indexOf(value.toLowerCase()) >
+    b.name.toLowerCase().indexOf(value.toLowerCase()) ? 1 : -1
+  )
+}
+
+fakeRequest (value, cb) {
+    debugger
+    if (value === '')
+        return this.state.teams
+    var items = this.state.teams.filter((team) => {
+        return this.findTeam(team, value)
+    })
+    setTimeout(() => {
+    cb(items)
+    }, 500)
+}
+onSelect(value, item){
+    this.setState({team: item }) 
+}
 
   constructor(props) {
-    fetch('http://54.68.232.199:8960/api/v1/teams/5', {
-      mode: 'no-cors'
-    }).then(r => r.json())
-      .then(data => console.log(data))
-      .catch(e => console.log(e));
-    // fetch('http://54.68.232.199:8960/api/v1/teams/5').then(r => r.json())
-    //   .then(data => console.log(data))
-    //   .catch(e => console.log(e))
-    
-    debugger
     super(props);
     this.state = {count: props.initialCount};
+    axios.get('http://localhost:8960/api/v1/teams/6')
+      .then(function (response) {
+        this.success(response.data);
+      }.bind(this))
+      .catch(function (response) {
+        console.log(response);
+      });
   }
+  success(data){
+    this.setState({teams: data, loading: false});
+  }
+renderItems (items) {
+  debugger
+  return items.map((item, index) => {
+    if (index === 0) {
+      var style = {
+        background: '#eee',
+        color: '#454545',
+        padding: '2px 6px',
+        fontWeight: 'bold'
+      }
+      return [<div style={style}>blah</div>, item]
+    }
+    else {
+      return item
+    }
+  })
+}
 
   static contextTypes = {
     onSetTitle: PropTypes.func.isRequired,
   };
-
   render() {
+    debugger
     this.context.onSetTitle("Teams");
     return (
         <Autocomplete
