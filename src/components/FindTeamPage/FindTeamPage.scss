@@ -18,16 +18,7 @@
   padding: 0 0 40px;
   max-width: $max-content-width;
 }
-.Android {
-    display:flex;
-    flex-direction:column;
-}
-.Parent {
-	display:flex;
-    flex-direction:row;
-	justify-content: space-around;
-}
-.IOS{
-    display:flex;
-    flex-direction:column;
+ul {
+    width: 40%;
+    margin: auto;
 }

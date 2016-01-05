@@ -12,6 +12,7 @@ import s from './FindTeamPage.scss';
 import withStyles from '../../decorators/withStyles';
 import fetch from '../../core/fetch';
 var axios = require('axios');
+var $ = require ('jquery')
 var Autocomplete = require('react-autocomplete');
 var styles = {
   item: {
@@ -57,7 +58,6 @@ sortTeams (a, b, value) {
 }
 
 fakeRequest (value, cb) {
-    debugger
     if (value === '')
         return this.state.teams
     var items = this.state.teams.filter((team) => {
@@ -74,7 +74,7 @@ onSelect(value, item){
   constructor(props) {
     super(props);
     this.state = {count: props.initialCount};
-    axios.get('http://localhost:8960/api/v1/teams/6')
+    axios.get('http://localhost:8960/api/v1/teams/')
       .then(function (response) {
         this.success(response.data);
       }.bind(this))
@@ -83,38 +83,52 @@ onSelect(value, item){
       });
   }
   success(data){
-    this.setState({teams: data, loading: false});
+    debugger
+    this.setState({teams: data, loading: false, selected: "all"});
+    this.teams = data;
   }
 renderItems (items) {
-  debugger
   return items.map((item, index) => {
-    if (index === 0) {
+    var text = item.props.children[0].props.children.charAt(0)
+    if (index === 0 || items[index - 1].props.children[0].props.children.charAt(0) !== text) {
       var style = {
         background: '#eee',
         color: '#454545',
         padding: '2px 6px',
         fontWeight: 'bold'
       }
-      return [<div style={style}>blah</div>, item]
+      return [<div style={style}>{text}</div>, item]
     }
     else {
       return item
     }
   })
 }
-
+facilityChoose(facility, event){
+  event.target.parentElement.className="active";
+  $("#" + this.state.selected).toggleClass("active");
+  this.setState({selected: event.target.parentElement.id})
+}
   static contextTypes = {
     onSetTitle: PropTypes.func.isRequired,
   };
   render() {
-    debugger
     this.context.onSetTitle("Teams");
     return (
+      <div className={s.root}>
+      <ul className="nav nav-pills">
+          <li id="all" role="presentation" className="active"><a href="#" onClick={this.facilityChoose.bind(this, 'all')}>All</a></li>
+          <li id="lets_play" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'lets_play')}>Lets Play Soccer</a></li>
+          <li id="soccer_city" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'soccer_city')}>Soccer City</a></li>
+          <li id="utah_soccer" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'utah_soccer')}>Utah Soccer</a></li>
+          <li id="uysa_boys" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'uysa_boys')}>UYSA Boys</a></li>
+          <li id="uysa_girls" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'uysa_girls')}>UYSA Girls</a></li>
+        </ul>
         <Autocomplete
           items={this.state.teams}
           getItemValue={(item) => item.name}
-          inputProps={{"className": "input-lg", "style": {"border": "solid 1px #ccc", "width": "900px"}}}
-          onSelect={this.onSelect}
+          inputProps={{"className": "form-control input-lg", "style": {"border": "solid 1px #ccc", "width": "900px"}}}
+          onSelect={this.onSelect.bind(this)}
           onChange={(event, value) => {
             this.setState({loading: true, team: null})
             this.fakeRequest(value, (items) => {
@@ -124,8 +138,8 @@ renderItems (items) {
           renderItem={(item, isHighlighted) => (
             <div
               style={isHighlighted ? styles.highlightedItem : styles.item}
-              key={item.teamId}
-              id={item.teamId}
+              key={item.Id}
+              id={item.Id}
               location={"Lets Play"}
             ><h1>{item.name}</h1><h2>{item.division}</h2></div>
           )}
@@ -140,6 +154,8 @@ renderItems (items) {
               ) : this.renderItems(items)}
             </div>
           )} />
+          </div>
+
     );
   }
 

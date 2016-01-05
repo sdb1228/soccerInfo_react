@@ -40,6 +40,7 @@ class Html extends Component {
     return (
       <html className="no-js" lang="">
       <head>
+        <link rel="stylesheet" href="bootstrap.min.css"/>
         <meta charSet="utf-8" />
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <title>{this.props.title}</title>
