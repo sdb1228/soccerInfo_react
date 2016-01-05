@@ -59,8 +59,8 @@ sortTeams (a, b, value) {
 
 fakeRequest (value, cb) {
     if (value === '')
-        return this.state.teams
-    var items = this.state.teams.filter((team) => {
+        return this.state.fullTeams
+    var items = this.state.fullTeams.filter((team) => {
         return this.findTeam(team, value)
     })
     setTimeout(() => {
@@ -74,7 +74,7 @@ onSelect(value, item){
   constructor(props) {
     super(props);
     this.state = {count: props.initialCount};
-    axios.get('http://localhost:8960/api/v1/teams/')
+    axios.get('http://localhost:8960/api/v1/teams/6')
       .then(function (response) {
         this.success(response.data);
       }.bind(this))
@@ -83,9 +83,7 @@ onSelect(value, item){
       });
   }
   success(data){
-    debugger
-    this.setState({teams: data, loading: false, selected: "all"});
-    this.teams = data;
+    this.setState({teams: data, loading: false, selected: "lets_play", fullTeams: data});
   }
 renderItems (items) {
   return items.map((item, index) => {
@@ -107,7 +105,15 @@ renderItems (items) {
 facilityChoose(facility, event){
   event.target.parentElement.className="active";
   $("#" + this.state.selected).toggleClass("active");
-  this.setState({selected: event.target.parentElement.id})
+
+  var url = "http://localhost:8960/api/v1/teams/" + event.target.id
+  axios.get(url)
+  .then(function (response) {
+    this.setState({teams: response.data, loading: false, selected: event.target.parentElement.id, fullTeams:response.data});
+  }.bind(this))
+  .catch(function (response) {
+    console.log(response);
+  });
 }
   static contextTypes = {
     onSetTitle: PropTypes.func.isRequired,
@@ -117,12 +123,11 @@ facilityChoose(facility, event){
     return (
       <div className={s.root}>
       <ul className="nav nav-pills">
-          <li id="all" role="presentation" className="active"><a href="#" onClick={this.facilityChoose.bind(this, 'all')}>All</a></li>
-          <li id="lets_play" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'lets_play')}>Lets Play Soccer</a></li>
-          <li id="soccer_city" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'soccer_city')}>Soccer City</a></li>
-          <li id="utah_soccer" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'utah_soccer')}>Utah Soccer</a></li>
-          <li id="uysa_boys" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'uysa_boys')}>UYSA Boys</a></li>
-          <li id="uysa_girls" role="presentation"><a href="#" onClick={this.facilityChoose.bind(this, 'uysa_girls')}>UYSA Girls</a></li>
+          <li id="lets_play" role="presentation" className="active" ><a id="6" href="#" onClick={this.facilityChoose.bind(this, 'lets_play')}>Lets Play Soccer</a></li>
+          <li id="soccer_city" role="presentation"><a id="5" href="#" onClick={this.facilityChoose.bind(this, 'soccer_city')}>Soccer City</a></li>
+          <li id="utah_soccer" role="presentation"><a id="1" href="#" onClick={this.facilityChoose.bind(this, 'utah_soccer')}>Utah Soccer</a></li>
+          <li id="uysa_boys" role="presentation"><a id="4" href="#" onClick={this.facilityChoose.bind(this, 'uysa_boys')}>UYSA Boys</a></li>
+          <li id="uysa_girls" role="presentation"><a id="3" href="#" onClick={this.facilityChoose.bind(this, 'uysa_girls')}>UYSA Girls</a></li>
         </ul>
         <Autocomplete
           items={this.state.teams}
@@ -140,8 +145,8 @@ facilityChoose(facility, event){
               style={isHighlighted ? styles.highlightedItem : styles.item}
               key={item.Id}
               id={item.Id}
-              location={"Lets Play"}
-            ><h1>{item.name}</h1><h2>{item.division}</h2></div>
+              location={item.facility}
+            ><h1>{item.name}</h1><div>{item.division}</div></div>
           )}
           renderMenu={(items, value, style) => (
             <div style={{...styles.menu, ...style}}>
@@ -154,7 +159,9 @@ facilityChoose(facility, event){
               ) : this.renderItems(items)}
             </div>
           )} />
+          <div id="gameRender" className={s.spacing}></div>
           </div>
+
 
     );
   }
